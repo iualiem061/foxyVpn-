@@ -423,7 +423,7 @@ fun Modifier.dynamicIslandMotionEffect(
     isConnected: Boolean = false,
     isExpanded: Boolean = false,
     trafficRateBytesPerSec: Long = 0L,
-    accentColor: Color = Color(0xFFFF6D00),
+    accentColor: Color = Color(0xFF00B0FF),
     cornerRadius: Dp = 28.dp,
 ): Modifier = composed {
     if (!enabled) return@composed this

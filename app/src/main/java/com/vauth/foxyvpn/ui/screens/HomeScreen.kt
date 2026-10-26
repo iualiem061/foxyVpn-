@@ -407,7 +407,7 @@ fun HomeScreen(
                                     modifier = Modifier.neumorphicTouchBounce(),
                                 ) {
                                     TelegramThemeAppearanceIcon(
-                                        tint = if (mode == ThemeMode.LIGHT) Color(0xFFFF5E1A) else neu.accent,
+                                        tint = neu.accent,
                                         modifier = Modifier
                                             .size(20.dp)
                                             .graphicsLayer { rotationZ = themeIconRotation },
@@ -1912,7 +1912,7 @@ private fun WorldRouteMapCard(
                     if (originNorm != null) {
                         val startPt = Offset(originNorm.x * w, originNorm.y * h)
                         drawCircle(
-                            color = Color(0xFFFF5E1A).copy(alpha = 0.35f * pulseRadius),
+                            color = neu.accent.copy(alpha = 0.35f * pulseRadius),
                             radius = 11.dp.toPx() * pulseRadius,
                             center = startPt,
                         )
@@ -1922,7 +1922,7 @@ private fun WorldRouteMapCard(
                             center = startPt,
                         )
                         drawCircle(
-                            color = Color(0xFFFF5E1A),
+                            color = neu.accent,
                             radius = 3.8.dp.toPx(),
                             center = startPt,
                         )

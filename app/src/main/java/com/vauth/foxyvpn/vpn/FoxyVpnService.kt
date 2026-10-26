@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
+import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
@@ -19,6 +20,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.vauth.foxyvpn.FoxyVpnApp
 import com.vauth.foxyvpn.MainActivity
+import com.vauth.foxyvpn.R
 import com.vauth.foxyvpn.data.AppLogger
 import com.vauth.foxyvpn.data.ControlPlaneHttp
 import com.vauth.foxyvpn.data.FxaAuthRepository
@@ -1459,7 +1461,7 @@ class FoxyVpnService : VpnService() {
         val builder = NotificationCompat.Builder(this, FoxyVpnApp.VPN_NOTIFICATION_CHANNEL_ID)
             .setContentTitle(displayTitle)
             .setContentText(displayBody)
-            .setSmallIcon(android.R.drawable.ic_lock_lock)
+            .setSmallIcon(R.drawable.ic_notification_foxy)
             .setContentIntent(openIntent)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
@@ -1469,6 +1471,12 @@ class FoxyVpnService : VpnService() {
             .setLocalOnly(true)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
             .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Disconnect", disconnectIntent)
+        val largeIcon = runCatching {
+            BitmapFactory.decodeResource(resources, R.drawable.ic_foxy_logo_round)
+        }.getOrNull()
+        if (largeIcon != null) {
+            builder.setLargeIcon(largeIcon)
+        }
         if (subText != null && !stealth) {
             builder.setStyle(NotificationCompat.BigTextStyle().bigText("$text\n$subText"))
         }

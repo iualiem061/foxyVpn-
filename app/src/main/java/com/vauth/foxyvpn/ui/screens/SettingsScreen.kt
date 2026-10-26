@@ -890,7 +890,7 @@ fun SettingsScreen(
                                                 SettingsCategory.APPEARANCE_WAVES -> neu.accent
                                                 SettingsCategory.DYNAMIC_ISLAND -> Color(0xFF2E65F3)
                                                 SettingsCategory.PROTOCOL_NETWORK -> Color(0xFF18C964)
-                                                SettingsCategory.SPEED_AUTOMATION -> Color(0xFFFF8A3D)
+                                                SettingsCategory.SPEED_AUTOMATION -> Color(0xFF00B4D8)
                                                 SettingsCategory.SMART_TOOLKIT -> Color(0xFF8B5CF6)
                                                 SettingsCategory.ACCOUNTS_ABOUT -> Color(0xFF00B8D9)
                                             }

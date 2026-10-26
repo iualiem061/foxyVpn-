@@ -3,7 +3,7 @@
 # FoxyVPN — Soft Neumorphism Edition (v1.0.8)
 
 <p align="center">
-  <img src="https://i.ibb.co/8D9KdmNk/6a07263d16c0.png" alt="FoxyVPN Logo" width="140"/>
+  <img src="docs/images/foxy_icon.png" alt="FoxyVPN Logo" width="140" style="border-radius: 50%;"/>
 </p>
 
 ![Android](https://img.shields.io/badge/Android_8.0%E2%80%9315-212121?style=for-the-badge&logo=android&logoColor=white)
@@ -11,9 +11,50 @@
 ![Compose](https://img.shields.io/badge/Jetpack%20Compose_M3-212121?style=for-the-badge&logo=android&logoColor=white)
 ![License](https://img.shields.io/badge/License_MIT-212121?style=for-the-badge)
 
-*FoxyVPN signs in with a Firefox account, obtains a proxy pass from Mozilla's Guardian service, and tunnels device traffic through Firefox VPN's Fastly edge relays over HTTP/2 (TCP) or HTTP/1.1 + TLS. Built natively for Android in Kotlin and Jetpack Compose with a tactile Soft Neumorphism UI, Deep Dynamic Island Customization, Standalone Telegram SOCKS5 Proxy, Gaming Latency/Jitter Monitor, and One-Tap Sanitized Diagnostics.*
+*FoxyVPN connects seamlessly with a Firefox account, obtains a proxy pass from Mozilla's Guardian service, and tunnels device traffic through Firefox VPN's Fastly edge relays over HTTP/2 (TCP) or HTTP/1.1 + TLS. Built natively for Android in Kotlin and Jetpack Compose with a tactile Soft Neumorphism UI, Electric Blue & White brand palette, Quick Settings Tile, Notification Service integration, Deep Dynamic Island Customization, Standalone Telegram SOCKS5 Proxy, and Real-Time Diagnostics.*
 
 </div>
+
+---
+
+## 📸 Screenshots & UI Showcase
+
+<div align="center">
+  <table>
+    <tr>
+      <td align="center"><b>Home & Slide to Connect</b></td>
+      <td align="center"><b>Server Locations (Latency/Edge)</b></td>
+    </tr>
+    <tr>
+      <td><img src="docs/images/screenshot_home.jpg" width="300" alt="Home Screen"/></td>
+      <td><img src="docs/images/screenshot_servers.jpg" width="300" alt="Server Locations Screen"/></td>
+    </tr>
+    <tr>
+      <td align="center"><b>Category Settings Hub</b></td>
+      <td align="center"><b>Dynamic Island Studio</b></td>
+    </tr>
+    <tr>
+      <td><img src="docs/images/screenshot_settings.jpg" width="300" alt="Settings Hub"/></td>
+      <td><img src="docs/images/screenshot_dynamic_island.jpg" width="300" alt="Dynamic Island Studio"/></td>
+    </tr>
+  </table>
+</div>
+
+---
+
+## 🎨 Design & Visual Identity Updates
+
+1. **Official Blue & White Circular App Icon**:
+   - Replaced legacy orange assets with the new stylized origami blue and white fox design.
+   - Fully adaptive with standard circular mask (`ic_launcher_round`), 66dp safe-zone layering, and non-adaptive PNG fallbacks for all device densities (`mdpi` through `xxxhdpi`).
+2. **Harmonized UI Color Palette**:
+   - Cohesive Electric Cyan (`#00E5FF` / `#00B0FF`), Royal Azure (`#0284C7` / `#2563EB`), and Deep Obsidian Slate (`#14171E` / `#1B1F28`) replacing old orange tints across buttons, sliders, badges, and wave graphs.
+3. **Redesigned Notification & Foreground Service**:
+   - Clean circular monochrome vector silhouette (`ic_notification_foxy`) in the Android Status Bar.
+   - High-resolution circular official fox logo displayed in the expanded notification shade and lockscreen cards.
+4. **Quick Settings Tile (QS Tile)**:
+   - One-tap toggle from Android's Control Center / Quick Settings panel using the official circular app icon.
+   - Real-time active/connecting/disconnected state updates with subtitle telemetry.
 
 ---
 
@@ -39,9 +80,9 @@ gradle :app:assembleRelease -PenableAbiSplits=true --no-daemon
 ## ✨ Key Capabilities & Real Features
 
 ### 1. Tactile Soft Neumorphism Interface
-- **Dual Soft Neumorphism Palette**: Warm Alabaster Day (`#ECEAF2`) & Deep Obsidian Night (`#1E212B`) with physical dual-shadow extrusion and recessed inner wells.
+- **Dual Soft Neumorphism Palette**: Warm Alabaster Day (`#ECEAF2`) & Deep Obsidian Night (`#14171E` / `#1B1F28`) with physical dual-shadow extrusion and recessed inner wells.
 - **Paginated Settings Architecture**: Non-scrolling category dashboard with dedicated sub-pages (`1/3` and `1/4` steppers) for clean navigation across all screen sizes.
-- **Bilingual Support**: Full RTL Persian (`فارسی`) and LTR English (`English`) localization with localized digits and custom typography (`Vazirmatn`, `Plus Jakarta Sans`, `Space Grotesk`, `JetBrains Mono`).
+- **Trilingual Support**: Full RTL Persian (`فارسی`), Arabic (`العربية`), and LTR English (`English`) localization with localized digits and custom typography (`Vazirmatn`, `Cairo`, `Almarai`, `Plus Jakarta Sans`, `Inter`, `JetBrains Mono`).
 
 ### 2. Deep Dynamic Island Customization & Pro Wave Studio
 - **Synchronized In-App & System Overlay Island**: Unified spring-physics morphing (`dampingRatio` & `stiffness` customizable in real time) both inside the app and as a floating overlay (`TYPE_APPLICATION_OVERLAY`) outside the app.
@@ -49,28 +90,26 @@ gradle :app:assembleRelease -PenableAbiSplits=true --no-daemon
   - Collapsed Pill Height (`32–56 dp`), Expanded Width (`82%–100%`), Corner Radius (`14–38 dp`), and Overall Scale (`0%–100%`).
   - Typography Scale (`80%–125%`), Border Stroke Width (`0.5–3.0 dp`), 3D Shadow Depth (`0–20 dp`), and Background Opacity (`60%–100%`).
   - Spring Physics Tuning: Adjustable Spring Damping (`55%–95%`) and Spring Stiffness (`180–600`).
-  - Quick-Launch App Dock: Real application icons and names resolved via Android `PackageManager`, with adjustable icon size (`28–48 dp`), app label visibility toggle, and Double-Tap Collapsed Action (`Expand`, `Toggle VPN`, `Open Server List`).
-- **Pro Wave Studio**: 10 acoustic wave styles with independent bar count (`4–16`), stroke thickness (`2–6 dp`), speed, sensitivity, amplitude, phase shift, glow intensity, and 7 color modes.
+  - Quick-Launch App Dock: Real application icons and names resolved via Android `PackageManager`.
+- **Pro Wave Studio**: Acoustic wave styles with independent bar count (`4–16`), stroke thickness (`2–6 dp`), speed, sensitivity, amplitude, phase shift, glow intensity, and customizable color modes.
 
-### 3. Evidence-Based VPN Engine, Protocols & UDP/QUIC Transparency
+### 3. Evidence-Based VPN Engine & Protocols
 - **Supported Tunnel Protocols**:
   - `Smart Auto (HTTP/2 + HTTP/1.1 TLS)`: Negotiates ALPN `h2` over TLS 1.3 with automatic fallback.
   - `HTTP/2 Multiplexed (TCP/TLS)`: Multiplexes concurrent streams over a single TLS 1.3 connection (`H2UpstreamSession`).
   - `HTTP/1.1 + TLS`: Dedicated `http/1.1` ALPN compatibility mode with automatic SNI fragmentation.
-  - *Protocol Transparency*: Mozilla's Fastly Guardian relays operate over TCP (`HTTP/2` / `HTTP/1.1` CONNECT). `HTTP/3 (QUIC)` is explicitly marked as unsupported on these TCP relays and is never simulated over TCP.
-- **UDP & Gaming Mode Transparency**:
-  - The local SOCKS5 UDP relay (`Socks5UdpDnsRelay`) carries UDP Port 53 DNS queries over encrypted DoH inside the tunnel. General non-DNS raw UDP datagrams are not relayed by Fastly HTTP CONNECT servers; games using TCP or TCP-fallback run over the tunnel, while Gaming Mode measures real RTT, Jitter, and Packet Loss and pauses background server auto-switching during gameplay.
-- **Validated DNS, MTU & Socket Buffer Controls**:
-  - Includes **Auto Safe Mode** (`MTU 1400`, adaptive socket buffers, automatic DoH bootstrap) plus live probe validation before applying custom MTU/fragmentation settings and one-tap **Reset to Safe Defaults**.
+- **UDP & DNS Protection**:
+  - The local SOCKS5 UDP relay (`Socks5UdpDnsRelay`) carries UDP Port 53 DNS queries over encrypted DoH inside the tunnel.
+  - Automatic Safe Mode (`MTU 1400`, adaptive socket buffers, automatic DoH bootstrap) with live probe validation.
 
 ### 4. Standalone Telegram SOCKS5 Proxy Mode
 - **Loopback-Protected SOCKS5 Server (`LocalSocks5Server`)**:
-  - Runs on `127.0.0.1:<port>` (strictly bound to loopback in Telegram Proxy mode so it is never exposed on public networks) and forwards traffic through the authenticated Mozilla Fastly `H2UpstreamSession` without routing loops.
-  - Displays live Host, Port, active SOCKS5 client count, end-to-end tunnel verification status, one-tap copy buttons, and direct **`tg://socks?server=127.0.0.1&port=...` ("Add to Telegram")** deep-link integration.
+  - Runs on `127.0.0.1:<port>` and forwards traffic through the authenticated Mozilla Fastly `H2UpstreamSession` without routing loops.
+  - One-tap copy buttons and direct **`tg://socks?server=127.0.0.1&port=...` ("Add to Telegram")** deep-link integration.
 
-### 5. Security, Leak Verification & One-Tap Sanitized Diagnostics
-- **Real In-Tunnel & Direct Leak Audit**: Compares direct ISP IP vs proxied exit IP, verifies in-tunnel DoH DNS resolution and latency, and checks IPv6 blackholing/routing.
-- **One-Tap Sanitized Diagnostic Report**: Generates a copyable report containing tunnel state, active protocol, latency measurement method (`ICMP`/`TCP`/`TLS`), MTU/buffer configuration, DNS status, and last error—while strictly redacting tokens, credentials, account emails, and personal IP octets.
+### 5. Security, Leak Verification & Diagnostics
+- **Real In-Tunnel & Direct Leak Audit**: Compares direct ISP IP vs proxied exit IP, verifies in-tunnel DoH DNS resolution and latency, and checks IPv6 routing.
+- **One-Tap Sanitized Diagnostic Report**: Generates a copyable report containing tunnel state, active protocol, latency measurement method, MTU/buffer configuration, and DNS status—while strictly redacting tokens and credentials.
 
 ---
 
@@ -78,7 +117,8 @@ gradle :app:assembleRelease -PenableAbiSplits=true --no-daemon
 
 - **Android 14 / 15 (API 34–35)**: Uses `FOREGROUND_SERVICE_SPECIAL_USE` (`vpn` subtype) and `ServiceCompat.startForeground`.
 - **Android 10+ (API 29+)**: Tracks underlying networks via `ConnectivityManager.NetworkCallback` (`NET_CAPABILITY_NOT_VPN`) and protects upstream sockets via `VpnService.protect()`.
-- **MIUI / HyperOS, OneUI & ColorOS**: Built-in battery optimization exemption and App Info background autostart shortcuts.
+- **Quick Settings Tile**: Android 7.0+ (API 24+) Quick Settings Tile Service with real-time subtitle telemetry.
+- **MIUI / HyperOS, OneUI & ColorOS**: Built-in battery optimization exemption and background autostart shortcuts.
 
 ---
 
@@ -86,7 +126,7 @@ gradle :app:assembleRelease -PenableAbiSplits=true --no-daemon
 
 1. **Create or use a free Firefox Account** at [accounts.firefox.com](https://accounts.firefox.com/signup).
 2. **Sign in** inside FoxyVPN to obtain your Mozilla Guardian proxy pass.
-3. **Pick a server** (or use **Telegram Proxy Mode**) and tap the central Neumorphic power button.
+3. **Pick a server** (or use **Telegram Proxy Mode**) and slide the connection toggle to connect.
 
 ---
 

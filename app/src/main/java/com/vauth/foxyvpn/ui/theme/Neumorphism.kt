@@ -138,7 +138,7 @@ fun Modifier.neumorphicRaised(
     darkShadowColor: Color? = null,
     designStyle: FoxyUiDesignStyle = FoxyUiDesignStyle.NEUMORPHISM,
     isDark: Boolean = false,
-    accentColor: Color = Color(0xFFFF5E1A),
+    accentColor: Color = Color(0xFF00B0FF),
 ): Modifier = this.then(
     Modifier.drawBehind {
         if (size.width <= 2f || size.height <= 2f || !size.width.isFinite() || !size.height.isFinite()) return@drawBehind

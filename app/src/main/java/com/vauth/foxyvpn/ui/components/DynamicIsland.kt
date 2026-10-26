@@ -514,7 +514,7 @@ fun QuickAppIconBadge(
                 }
                 else -> {
                     drawRoundRect(
-                        brush = Brush.linearGradient(listOf(Color(0xFFFF5E1A), Color(0xFF2E65F3))),
+                        brush = Brush.linearGradient(listOf(Color(0xFF00E5FF), Color(0xFF2563EB))),
                         cornerRadius = CornerRadius(w * 0.28f, w * 0.28f),
                     )
                     drawCircle(color = Color.White, radius = w * 0.18f, center = Offset(cx, cy))

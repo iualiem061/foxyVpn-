@@ -20,12 +20,12 @@ enum class FoxyColorTheme(
     val secondaryAccentHex: Long,
 ) {
     CYBER_FOX(
-        label = "Cyber Fox Coral",
-        persianLabel = "نارنجی مرجانی فاکسی",
-        arabicLabel = "مرجاني فوكسي",
-        primaryLightHex = 0xFFE05324,
-        primaryDarkHex = 0xFFFF7849,
-        secondaryAccentHex = 0xFF10B981,
+        label = "Cyber Fox Blue",
+        persianLabel = "آبی و سفید رسمی فاکسی",
+        arabicLabel = "أزرق فوكسي الرسمي",
+        primaryLightHex = 0xFF0284C7,
+        primaryDarkHex = 0xFF00B0FF,
+        secondaryAccentHex = 0xFF00E5FF,
     ),
     OCEAN_SAPPHIRE(
         label = "Ocean Sapphire",
@@ -184,7 +184,7 @@ enum class WaveColorMode(
     val colorHex: Long,
 ) {
     AUTO_STATUS("Auto Status Color", "هماهنگ با وضعیت اتصال", "تلقائي حسب الحالة", 0L),
-    SUNSET_ORANGE("Foxy Sunset Orange", "نارنجی آتشین فاکسی", "برتقالي فوكسي", 0xFFFF5E1A),
+    SUNSET_ORANGE("Foxy Electric Blue", "آبی درخشان فاکسی", "أزرق فوكسي المتوهج", 0xFF00B0FF),
     ROYAL_BLUE("Electric Royal Blue", "آبی الکتریک سلطنتی", "أزرق ملكي", 0xFF2E65F3),
     EMERALD_MINT("Neon Emerald Mint", "سبز زمردی نئون", "أخضر زمردي", 0xFF18C964),
     CYBER_VIOLET("Cyber Amethyst", "بنفش سایبری", "بنفسجي سيبراني", 0xFF9333EA),
