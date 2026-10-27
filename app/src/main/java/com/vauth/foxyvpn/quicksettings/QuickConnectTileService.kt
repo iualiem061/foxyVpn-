@@ -26,8 +26,14 @@ class QuickConnectTileService : TileService() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var listenJob: Job? = null
 
+    override fun onTileAdded() {
+        super.onTileAdded()
+        updateTileState(FoxyVpnService.state.value)
+    }
+
     override fun onStartListening() {
         super.onStartListening()
+        updateTileState(FoxyVpnService.state.value)
         listenJob?.cancel()
         listenJob = serviceScope.launch {
             FoxyVpnService.state.collect { state ->
@@ -76,6 +82,7 @@ class QuickConnectTileService : TileService() {
         val tile = qsTile ?: return
         tile.icon = Icon.createWithResource(this, R.drawable.ic_notification_foxy)
         tile.label = getString(R.string.app_name)
+        tile.contentDescription = getString(R.string.app_name)
         when (state) {
             ConnectionState.CONNECTED -> {
                 tile.state = Tile.STATE_ACTIVE

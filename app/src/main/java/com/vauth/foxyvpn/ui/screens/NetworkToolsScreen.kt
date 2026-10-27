@@ -10,9 +10,12 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.res.painterResource
+import com.vauth.foxyvpn.R
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -267,12 +270,20 @@ fun NetworkToolsScreen(
                         contentAlignment = Alignment.Center,
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = tab.icon,
-                                contentDescription = title,
-                                tint = if (isSelected) Color.White else neu.accent,
-                                modifier = Modifier.size(18.dp),
-                            )
+                            if (tab == NetworkToolTab.TELEGRAM_PROXY) {
+                                Image(
+                                    painter = painterResource(R.drawable.ic_brand_telegram),
+                                    contentDescription = title,
+                                    modifier = Modifier.size(20.dp),
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = tab.icon,
+                                    contentDescription = title,
+                                    tint = if (isSelected) Color.White else neu.accent,
+                                    modifier = Modifier.size(18.dp),
+                                )
+                            }
                             Spacer(Modifier.width(8.dp))
                             Text(
                                 text = title,
@@ -2289,7 +2300,11 @@ private fun TelegramProxyToolPanel(
                         .fillMaxWidth()
                         .neumorphicTouchBounce(),
                 ) {
-                    Icon(Icons.AutoMirrored.Filled.Send, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
+                    Image(
+                        painter = painterResource(R.drawable.ic_brand_telegram),
+                        contentDescription = null,
+                        modifier = Modifier.size(22.dp),
+                    )
                     Spacer(Modifier.width(10.dp))
                     Text(
                         text = when (s.language) {

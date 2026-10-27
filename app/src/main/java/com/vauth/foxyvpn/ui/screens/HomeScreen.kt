@@ -804,15 +804,26 @@ fun HomeScreen(
                                         modifier = Modifier
                                             .size(40.dp)
                                             .clip(CircleShape)
-                                            .background(neu.accent.copy(alpha = 0.15f)),
+                                            .background(
+                                                if (tool == NetworkToolTab.TELEGRAM_PROXY) Color(0xFF229ED9).copy(alpha = 0.16f)
+                                                else neu.accent.copy(alpha = 0.15f)
+                                            ),
                                         contentAlignment = Alignment.Center,
                                     ) {
-                                        Icon(
-                                            imageVector = tool.icon,
-                                            contentDescription = toolTitle,
-                                            tint = neu.accent,
-                                            modifier = Modifier.size(20.dp),
-                                        )
+                                        if (tool == NetworkToolTab.TELEGRAM_PROXY) {
+                                            Image(
+                                                painter = painterResource(R.drawable.ic_brand_telegram),
+                                                contentDescription = toolTitle,
+                                                modifier = Modifier.size(24.dp),
+                                            )
+                                        } else {
+                                            Icon(
+                                                imageVector = tool.icon,
+                                                contentDescription = toolTitle,
+                                                tint = neu.accent,
+                                                modifier = Modifier.size(20.dp),
+                                            )
+                                        }
                                     }
                                     Spacer(Modifier.height(12.dp))
                                     Text(

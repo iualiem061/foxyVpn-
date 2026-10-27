@@ -538,15 +538,28 @@ fun QuickAppIconBadge(
                 }
                 "org.telegram.messenger" -> {
                     drawCircle(
-                        brush = Brush.verticalGradient(listOf(Color(0xFF37AEE2), Color(0xFF1E96C8))),
+                        brush = Brush.verticalGradient(listOf(Color(0xFF2AABEE), Color(0xFF229ED9))),
                         radius = w * 0.48f,
                         center = Offset(cx, cy),
                     )
+                    // Authentic Telegram tail fold shadow
+                    val foldPath = Path().apply {
+                        moveTo(w * 0.43f, h * 0.70f)
+                        lineTo(w * 0.40f, h * 0.59f)
+                        lineTo(w * 0.49f, h * 0.64f)
+                        close()
+                    }
+                    drawPath(foldPath, Color(0xFFB5E2F7))
+                    // Authentic Telegram paper plane body
                     val planePath = Path().apply {
-                        moveTo(w * 0.22f, h * 0.50f)
+                        moveTo(w * 0.22f, h * 0.49f)
                         lineTo(w * 0.74f, h * 0.28f)
-                        lineTo(w * 0.64f, h * 0.74f)
-                        lineTo(w * 0.46f, h * 0.58f)
+                        lineTo(w * 0.68f, h * 0.73f)
+                        lineTo(w * 0.49f, h * 0.65f)
+                        lineTo(w * 0.43f, h * 0.71f)
+                        lineTo(w * 0.40f, h * 0.60f)
+                        lineTo(w * 0.64f, h * 0.38f)
+                        lineTo(w * 0.33f, h * 0.56f)
                         close()
                     }
                     drawPath(planePath, Color.White)
@@ -576,21 +589,28 @@ fun QuickAppIconBadge(
                     drawRoundRect(
                         brush = Brush.linearGradient(
                             colors = listOf(Color(0xFF833AB4), Color(0xFFFD1D1D), Color(0xFFFCAF45)),
+                            start = Offset(0f, h),
+                            end = Offset(w, 0f),
                         ),
-                        cornerRadius = CornerRadius(w * 0.28f, w * 0.28f),
+                        cornerRadius = CornerRadius(w * 0.26f, w * 0.26f),
                     )
                     drawRoundRect(
                         color = Color.White,
-                        topLeft = Offset(w * 0.22f, h * 0.22f),
-                        size = Size(w * 0.56f, h * 0.56f),
-                        cornerRadius = CornerRadius(w * 0.16f, w * 0.16f),
-                        style = Stroke(width = w * 0.08f),
+                        topLeft = Offset(w * 0.20f, h * 0.20f),
+                        size = Size(w * 0.60f, h * 0.60f),
+                        cornerRadius = CornerRadius(w * 0.17f, w * 0.17f),
+                        style = Stroke(width = w * 0.075f),
                     )
                     drawCircle(
                         color = Color.White,
-                        radius = w * 0.13f,
+                        radius = w * 0.14f,
                         center = Offset(cx, cy),
-                        style = Stroke(width = w * 0.08f),
+                        style = Stroke(width = w * 0.075f),
+                    )
+                    drawCircle(
+                        color = Color.White,
+                        radius = w * 0.042f,
+                        center = Offset(w * 0.68f, h * 0.31f),
                     )
                 }
                 "com.whatsapp" -> {

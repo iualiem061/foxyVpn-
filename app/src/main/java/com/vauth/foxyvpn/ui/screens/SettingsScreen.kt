@@ -6,9 +6,12 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.res.painterResource
+import com.vauth.foxyvpn.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -3216,9 +3219,9 @@ private fun SettingSocialLinkRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(14.dp))
             .clickable(onClick = onClick)
-            .padding(vertical = 6.dp),
+            .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
@@ -3228,54 +3231,20 @@ private fun SettingSocialLinkRow(
         ) {
             Box(
                 modifier = Modifier
-                    .size(40.dp)
+                    .size(44.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(brandColor.copy(alpha = 0.14f))
-                    .border(1.dp, brandColor.copy(alpha = 0.35f), RoundedCornerShape(12.dp)),
+                    .background(brandColor.copy(alpha = 0.12f))
+                    .border(1.dp, brandColor.copy(alpha = 0.28f), RoundedCornerShape(12.dp))
+                    .neumorphicTouchBounce(),
                 contentAlignment = Alignment.Center,
             ) {
-                Canvas(modifier = Modifier.size(20.dp)) {
-                    val strokeW = size.minDimension * 0.11f
-                    if (isInstagram) {
-                        // Instagram camera glyph
-                        drawRoundRect(
-                            color = brandColor,
-                            topLeft = Offset(strokeW, strokeW),
-                            size = Size(size.width - strokeW * 2, size.height - strokeW * 2),
-                            cornerRadius = CornerRadius(size.minDimension * 0.28f, size.minDimension * 0.28f),
-                            style = Stroke(width = strokeW),
-                        )
-                        drawCircle(
-                            color = brandColor,
-                            radius = size.minDimension * 0.22f,
-                            center = center,
-                            style = Stroke(width = strokeW),
-                        )
-                        drawCircle(
-                            color = brandColor,
-                            radius = strokeW * 0.65f,
-                            center = Offset(size.width * 0.74f, size.height * 0.26f),
-                        )
-                    } else {
-                        // Telegram paper plane glyph
-                        val path = Path().apply {
-                            moveTo(size.width * 0.90f, size.height * 0.14f)
-                            lineTo(size.width * 0.10f, size.height * 0.48f)
-                            lineTo(size.width * 0.38f, size.height * 0.60f)
-                            lineTo(size.width * 0.78f, size.height * 0.28f)
-                            lineTo(size.width * 0.48f, size.height * 0.66f)
-                            lineTo(size.width * 0.68f, size.height * 0.86f)
-                            close()
-                        }
-                        drawPath(
-                            path = path,
-                            color = brandColor,
-                            style = Stroke(width = strokeW, cap = StrokeCap.Round, join = StrokeJoin.Round),
-                        )
-                    }
-                }
+                Image(
+                    painter = painterResource(if (isInstagram) R.drawable.ic_brand_instagram else R.drawable.ic_brand_telegram),
+                    contentDescription = title,
+                    modifier = Modifier.size(34.dp),
+                )
             }
-            Spacer(Modifier.width(12.dp))
+            Spacer(Modifier.width(14.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     title,
