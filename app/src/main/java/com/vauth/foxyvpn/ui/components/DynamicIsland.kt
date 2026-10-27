@@ -122,6 +122,8 @@ import android.content.Context
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.rotate
+import com.vauth.foxyvpn.vpn.PingUtil
 import com.vauth.foxyvpn.data.ConnectionProtocolMode
 import com.vauth.foxyvpn.data.DynamicIslandIndicatorStyle
 import com.vauth.foxyvpn.data.DynamicIslandMotionStyle
@@ -348,6 +350,132 @@ fun DynamicIslandStatusIndicator(
                         radius = r * 0.38f,
                     )
                 }
+            }
+        }
+        DynamicIslandIndicatorStyle.QUANTUM_ORBIT -> {
+            val infinite = rememberInfiniteTransition(label = "island-quantum")
+            val angle by infinite.animateFloat(
+                initialValue = 0f,
+                targetValue = 360f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = 2000, easing = LinearEasing),
+                    repeatMode = RepeatMode.Restart,
+                ),
+                label = "quantum-rot",
+            )
+            Canvas(modifier = modifier.size(18.dp)) {
+                val r = size.minDimension * 0.44f
+                drawCircle(color = color, radius = 3.dp.toPx())
+                if (active) {
+                    rotate(45f + angle) {
+                        drawOval(
+                            color = color.copy(alpha = 0.35f),
+                            style = Stroke(width = 1.2.dp.toPx()),
+                        )
+                        val rad1 = Math.toRadians(angle.toDouble())
+                        val eX = center.x + (r * cos(rad1)).toFloat()
+                        val eY = center.y + (r * 0.45f * sin(rad1)).toFloat()
+                        drawCircle(color = Color.White, radius = 1.8.dp.toPx(), center = Offset(eX, eY))
+                    }
+                    rotate(-45f - angle) {
+                        drawOval(
+                            color = color.copy(alpha = 0.35f),
+                            style = Stroke(width = 1.2.dp.toPx()),
+                        )
+                        val rad2 = Math.toRadians((angle + 180f).toDouble())
+                        val eX = center.x + (r * cos(rad2)).toFloat()
+                        val eY = center.y + (r * 0.45f * sin(rad2)).toFloat()
+                        drawCircle(color = Color(0xFF00E5FF), radius = 1.8.dp.toPx(), center = Offset(eX, eY))
+                    }
+                }
+            }
+        }
+        DynamicIslandIndicatorStyle.HEX_MATRIX -> {
+            val infinite = rememberInfiniteTransition(label = "island-hex")
+            val pulse by infinite.animateFloat(
+                initialValue = 0.8f,
+                targetValue = 1.15f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = 1100, easing = FastOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse,
+                ),
+                label = "hex-pulse",
+            )
+            Canvas(modifier = modifier.size(17.dp)) {
+                val r = size.minDimension * 0.44f * if (active) pulse else 1f
+                val hexPath = Path()
+                for (i in 0 until 6) {
+                    val angleRad = (i * 60.0 - 30.0) * Math.PI / 180.0
+                    val x = center.x + (r * cos(angleRad)).toFloat()
+                    val y = center.y + (r * sin(angleRad)).toFloat()
+                    if (i == 0) hexPath.moveTo(x, y) else hexPath.lineTo(x, y)
+                }
+                hexPath.close()
+                drawPath(path = hexPath, color = color.copy(alpha = if (active) 0.35f else 0.15f))
+                drawPath(path = hexPath, color = color, style = Stroke(width = 1.5.dp.toPx()))
+                drawCircle(color = color, radius = 2.dp.toPx(), center = center)
+            }
+        }
+        DynamicIslandIndicatorStyle.SONIC_RIPPLE -> {
+            val infinite = rememberInfiniteTransition(label = "island-sonic")
+            val progress by infinite.animateFloat(
+                initialValue = 0f,
+                targetValue = 1f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = 1400, easing = LinearEasing),
+                    repeatMode = RepeatMode.Restart,
+                ),
+                label = "sonic-progress",
+            )
+            Canvas(modifier = modifier.size(18.dp)) {
+                val maxR = size.minDimension * 0.46f
+                drawCircle(color = color, radius = 2.5.dp.toPx(), center = center)
+                if (active) {
+                    for (i in 0 until 3) {
+                        val frac = (progress + i / 3f) % 1f
+                        val r = maxR * frac
+                        val alpha = (1f - frac).coerceIn(0f, 1f) * 0.75f
+                        drawCircle(
+                            color = color.copy(alpha = alpha),
+                            radius = r,
+                            style = Stroke(width = 1.3.dp.toPx()),
+                        )
+                    }
+                }
+            }
+        }
+        DynamicIslandIndicatorStyle.NEON_COMPASS -> {
+            val infinite = rememberInfiniteTransition(label = "island-compass")
+            val rot by infinite.animateFloat(
+                initialValue = 0f,
+                targetValue = 360f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = 3200, easing = LinearEasing),
+                    repeatMode = RepeatMode.Restart,
+                ),
+                label = "compass-rot",
+            )
+            Canvas(modifier = modifier.size(17.dp)) {
+                val r = size.minDimension * 0.44f
+                drawCircle(color = color.copy(alpha = 0.28f), radius = r, style = Stroke(width = 1.dp.toPx()))
+                val curRot = if (active) rot else 45f
+                rotate(curRot) {
+                    drawLine(
+                        color = Color(0xFF00E5FF),
+                        start = center,
+                        end = Offset(center.x, center.y - r),
+                        strokeWidth = 2.dp.toPx(),
+                        cap = StrokeCap.Round,
+                    )
+                    drawLine(
+                        color = color.copy(alpha = 0.45f),
+                        start = center,
+                        end = Offset(center.x, center.y + r),
+                        strokeWidth = 1.5.dp.toPx(),
+                        cap = StrokeCap.Round,
+                    )
+                }
+                drawCircle(color = Color.White, radius = 2.dp.toPx(), center = center)
             }
         }
     }
@@ -976,6 +1104,33 @@ fun DynamicIsland(
                             com.vauth.foxyvpn.data.DynamicIslandDoubleTapAction.OPEN_SERVERS -> {
                                 onOpenServers()
                             }
+                            com.vauth.foxyvpn.data.DynamicIslandDoubleTapAction.TOGGLE_KILLSWITCH -> {
+                                settingsStore.killSwitchEnabled = !settingsStore.killSwitchEnabled
+                            }
+                            com.vauth.foxyvpn.data.DynamicIslandDoubleTapAction.SPEED_TEST -> {
+                                val host = selectedProxy?.host
+                                if (!host.isNullOrBlank()) {
+                                    scope.launch {
+                                        val measurement = PingUtil.measureServerLatency(host, 443)
+                                        val rtt = measurement?.latencyMs
+                                        networkActionFeedback = if (rtt != null) "Ping: ${rtt}ms" else "Timeout"
+                                        delay(2600)
+                                        networkActionFeedback = null
+                                    }
+                                }
+                            }
+                            com.vauth.foxyvpn.data.DynamicIslandDoubleTapAction.COPY_EXIT_IP -> {
+                                val ip = selectedProxy?.host
+                                if (!ip.isNullOrBlank()) {
+                                    val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as? android.content.ClipboardManager
+                                    clipboard?.setPrimaryClip(android.content.ClipData.newPlainText("VPN IP", ip))
+                                    networkActionFeedback = "IP Copied"
+                                    scope.launch {
+                                        delay(2200)
+                                        networkActionFeedback = null
+                                    }
+                                }
+                            }
                         }
                     },
                     onClick = {
@@ -1537,9 +1692,9 @@ fun DynamicIsland(
                                                 FoxyLanguage.EN -> "Pinging..."
                                             }
                                             else -> when (s.language) {
-                                                FoxyLanguage.FA -> "⚡ تست پینگ زنده"
-                                                FoxyLanguage.AR -> "⚡ فحص البينج"
-                                                FoxyLanguage.EN -> "⚡ Live Ping"
+                                                FoxyLanguage.FA -> "تست پینگ زنده"
+                                                FoxyLanguage.AR -> "فحص البينج الحي"
+                                                FoxyLanguage.EN -> "Live Ping Test"
                                             }
                                         },
                                         style = MaterialTheme.typography.labelSmall.copy(
@@ -1625,9 +1780,9 @@ fun DynamicIsland(
                                 ) {
                                     Text(
                                         text = networkActionFeedback ?: when (s.language) {
-                                            FoxyLanguage.FA -> "✈ پروکسی تلگرام"
-                                            FoxyLanguage.AR -> "✈ بروكسي تيليجرام"
-                                            FoxyLanguage.EN -> "✈ TG SOCKS5"
+                                            FoxyLanguage.FA -> "پروکسی تلگرام"
+                                            FoxyLanguage.AR -> "بروكسي تيليجرام"
+                                            FoxyLanguage.EN -> "TG SOCKS5"
                                         },
                                         style = MaterialTheme.typography.labelSmall.copy(
                                             fontFamily = fonts.bodyFont,
@@ -2125,7 +2280,22 @@ fun DynamicIslandLivePreviewCard(
                             }
                             Spacer(Modifier.width(7.dp))
                             if (settingsStore.dynamicIslandShowFlag) {
-                                Text("🇩🇪", fontSize = (13f * fontScale).sp)
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(neu.accent.copy(alpha = 0.15f))
+                                        .padding(horizontal = 4.dp, vertical = 1.dp),
+                                ) {
+                                    Text(
+                                        text = "DE",
+                                        style = MaterialTheme.typography.labelSmall.copy(
+                                            fontFamily = fonts.monoFont,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = (10f * fontScale).sp,
+                                        ),
+                                        color = neu.accent,
+                                    )
+                                }
                                 Spacer(Modifier.width(5.dp))
                             }
                             if (settingsStore.dynamicIslandShowServerName && !settingsStore.dynamicIslandCompactTelemetry) {
@@ -2210,7 +2380,22 @@ fun DynamicIslandLivePreviewCard(
                                         Spacer(Modifier.width(8.dp))
                                     }
                                     if (settingsStore.dynamicIslandShowFlag) {
-                                        Text("🇩🇪", fontSize = (18f * fontScale).sp)
+                                        Box(
+                                            modifier = Modifier
+                                                .clip(RoundedCornerShape(4.dp))
+                                                .background(neu.accent.copy(alpha = 0.15f))
+                                                .padding(horizontal = 5.dp, vertical = 2.dp),
+                                        ) {
+                                            Text(
+                                                text = "DE",
+                                                style = MaterialTheme.typography.labelSmall.copy(
+                                                    fontFamily = fonts.monoFont,
+                                                    fontWeight = FontWeight.Bold,
+                                                    fontSize = (11f * fontScale).sp,
+                                                ),
+                                                color = neu.accent,
+                                            )
+                                        }
                                         Spacer(Modifier.width(6.dp))
                                     }
                                     Column {
@@ -2260,7 +2445,7 @@ fun DynamicIslandLivePreviewCard(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.spacedBy(5.dp),
                                 ) {
-                                    listOf("⚡ Ping 38ms", "⇄ HTTP/2", "✈ TG Proxy").forEach { tag ->
+                                    listOf("Ping 38ms", "HTTP/2", "TG Proxy").forEach { tag ->
                                         Box(
                                             modifier = Modifier
                                                 .weight(1f)
@@ -3504,7 +3689,7 @@ fun DynamicIslandAppPickerDialog(
                                 QuickAppIconBadge(packageName = pkg, iconBitmap = null, size = 14.dp)
                                 Spacer(Modifier.width(5.dp))
                                 Text(
-                                    text = if (isPinned) "✓ $label" else "+ $label",
+                                    text = if (isPinned) "Added: $label" else "+ $label",
                                     style = MaterialTheme.typography.labelSmall.copy(
                                         fontFamily = fonts.headingFont,
                                         fontWeight = FontWeight.Bold,

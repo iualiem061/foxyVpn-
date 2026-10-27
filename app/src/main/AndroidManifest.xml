@@ -54,7 +54,7 @@
         <service
             android:name=".quicksettings.QuickConnectTileService"
             android:icon="@drawable/ic_notification_foxy"
-            android:label="@string/quick_connect"
+            android:label="@string/app_name"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
             android:exported="true">
             <intent-filter>

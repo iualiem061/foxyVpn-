@@ -1,7 +1,8 @@
 package com.vauth.foxyvpn.ui.navigation
 
 import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -51,26 +52,38 @@ fun FoxyNavGraph(
         enterTransition = {
             slideIntoContainer(
                 towards = AnimatedContentTransitionScope.SlideDirection.Start,
-                animationSpec = tween(340, easing = FastOutSlowInEasing),
-            ) + fadeIn(tween(280)) + scaleIn(initialScale = 0.96f, animationSpec = tween(320))
+                animationSpec = spring(stiffness = Spring.StiffnessMediumLow, dampingRatio = 0.82f),
+            ) + fadeIn(spring(stiffness = Spring.StiffnessMediumLow)) + scaleIn(
+                initialScale = 0.94f,
+                animationSpec = spring(stiffness = Spring.StiffnessMediumLow, dampingRatio = 0.82f),
+            )
         },
         exitTransition = {
             slideOutOfContainer(
                 towards = AnimatedContentTransitionScope.SlideDirection.Start,
-                animationSpec = tween(300, easing = FastOutSlowInEasing),
-            ) + fadeOut(tween(240)) + scaleOut(targetScale = 0.96f, animationSpec = tween(300))
+                animationSpec = spring(stiffness = Spring.StiffnessMediumLow, dampingRatio = 0.82f),
+            ) + fadeOut(spring(stiffness = Spring.StiffnessMediumLow)) + scaleOut(
+                targetScale = 0.94f,
+                animationSpec = spring(stiffness = Spring.StiffnessMediumLow, dampingRatio = 0.82f),
+            )
         },
         popEnterTransition = {
             slideIntoContainer(
                 towards = AnimatedContentTransitionScope.SlideDirection.End,
-                animationSpec = tween(320, easing = FastOutSlowInEasing),
-            ) + fadeIn(tween(260)) + scaleIn(initialScale = 0.96f, animationSpec = tween(300))
+                animationSpec = spring(stiffness = Spring.StiffnessMediumLow, dampingRatio = 0.82f),
+            ) + fadeIn(spring(stiffness = Spring.StiffnessMediumLow)) + scaleIn(
+                initialScale = 0.94f,
+                animationSpec = spring(stiffness = Spring.StiffnessMediumLow, dampingRatio = 0.82f),
+            )
         },
         popExitTransition = {
             slideOutOfContainer(
                 towards = AnimatedContentTransitionScope.SlideDirection.End,
-                animationSpec = tween(300, easing = FastOutSlowInEasing),
-            ) + fadeOut(tween(220)) + scaleOut(targetScale = 0.96f, animationSpec = tween(280))
+                animationSpec = spring(stiffness = Spring.StiffnessMediumLow, dampingRatio = 0.82f),
+            ) + fadeOut(spring(stiffness = Spring.StiffnessMediumLow)) + scaleOut(
+                targetScale = 0.94f,
+                animationSpec = spring(stiffness = Spring.StiffnessMediumLow, dampingRatio = 0.82f),
+            )
         },
     ) {
         composable(FoxyRoutes.SPLASH) {

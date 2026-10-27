@@ -78,6 +78,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -85,14 +86,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Layers
+import androidx.compose.material.icons.filled.MyLocation
+import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Waves
+import androidx.compose.ui.input.pointer.pointerInput
+import java.util.Locale
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -1591,6 +1600,7 @@ private fun WorldRouteMapCard(
     val statusColors = LocalFoxyStatusColors.current
     val s = currentFoxyStrings
     val fonts = currentFoxyFonts
+    val haptics = LocalHapticFeedback.current
     val isConnected = state == ConnectionState.CONNECTED
     val isConnecting = state == ConnectionState.CONNECTING
 
@@ -1785,174 +1795,388 @@ private fun WorldRouteMapCard(
                 }
             }
 
+            val originNorm = resolvedOriginCountryCode?.let { locationToMercatorNorm(it, null) }
+            val exitNorm = resolvedExitCountryCode?.let { locationToMercatorNorm(it, resolvedExitCityCode) }
+
+            var mapZoomScale by remember { mutableFloatStateOf(1f) }
+            var mapPanOffset by remember { mutableStateOf(Offset.Zero) }
+
+            val animatedMapZoom by animateFloatAsState(
+                targetValue = mapZoomScale,
+                animationSpec = spring(stiffness = Spring.StiffnessMediumLow, dampingRatio = 0.85f),
+                label = "map-zoom-anim",
+            )
+
             val mapShape = RoundedCornerShape(16.dp)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(160.dp)
+                    .height(180.dp)
                     .neumorphicSunken(
                         shape = mapShape,
                         cornerRadius = 16.dp,
                         depth = 2.5.dp,
                         surfaceColor = neu.surfaceElevated,
                     )
-                    .clip(mapShape),
+                    .clip(mapShape)
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onDoubleTap = {
+                                if (mapZoomScale > 1.15f) {
+                                    mapZoomScale = 1.0f
+                                    mapPanOffset = Offset.Zero
+                                } else {
+                                    mapZoomScale = 2.4f
+                                    if (exitNorm != null) {
+                                        mapPanOffset = Offset(
+                                            (0.5f - exitNorm.x) * 260f,
+                                            (0.5f - exitNorm.y) * 140f
+                                        )
+                                    }
+                                }
+                            }
+                        )
+                    }
+                    .pointerInput(Unit) {
+                        detectTransformGestures { _, pan, zoom, _ ->
+                            val nextScale = (mapZoomScale * zoom).coerceIn(1.0f, 4.5f)
+                            mapZoomScale = nextScale
+                            if (nextScale <= 1.02f) {
+                                mapPanOffset = Offset.Zero
+                            } else {
+                                val maxBoundX = 140f * (nextScale - 1f)
+                                val maxBoundY = 80f * (nextScale - 1f)
+                                mapPanOffset = Offset(
+                                    (mapPanOffset.x + pan.x).coerceIn(-maxBoundX, maxBoundX),
+                                    (mapPanOffset.y + pan.y).coerceIn(-maxBoundY, maxBoundY)
+                                )
+                            }
+                        }
+                    },
             ) {
                 val loadedBitmap = googleWorldBitmap
-                if (loadedBitmap != null) {
-                    Image(
-                        bitmap = loadedBitmap,
-                        contentDescription = "Google World Map",
-                        contentScale = ContentScale.FillBounds,
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(
-                                if (useSatelliteLayer) Color(0xFF0B101B).copy(alpha = 0.24f)
-                                else Color(0xFF0F172A).copy(alpha = 0.08f)
-                            ),
-                    )
-                }
 
-                Canvas(modifier = Modifier.fillMaxSize()) {
-                    val w = size.width
-                    val h = size.height
-
-                    // Always draw subtle Mercator graticule grid (and continental landmasses when tiles are offline)
-                    val gridColor = if (loadedBitmap != null) {
-                        Color.White.copy(alpha = 0.08f)
-                    } else {
-                        neu.accent.copy(alpha = if (neu.isDark) 0.16f else 0.12f)
-                    }
-                    for (i in 1..7) {
-                        val gx = w * (i / 8f)
-                        drawLine(gridColor, Offset(gx, 0f), Offset(gx, h), strokeWidth = 1f)
-                    }
-                    for (j in 1..3) {
-                        val gy = h * (j / 4f)
-                        drawLine(gridColor, Offset(0f, gy), Offset(w, gy), strokeWidth = 1f)
-                    }
-
-                    if (loadedBitmap == null) {
-                        // Clean vector continental nodes when Google tiles are unreachable offline
-                        val continentColor = neu.textSecondary.copy(alpha = if (neu.isDark) 0.16f else 0.13f)
-                        val hubs = listOf(
-                            Offset(0.22f, 0.36f) to 28.dp.toPx(), // North America
-                            Offset(0.32f, 0.72f) to 20.dp.toPx(), // South America
-                            Offset(0.51f, 0.30f) to 24.dp.toPx(), // Europe
-                            Offset(0.54f, 0.58f) to 24.dp.toPx(), // Africa
-                            Offset(0.68f, 0.38f) to 32.dp.toPx(), // Asia
-                            Offset(0.83f, 0.76f) to 18.dp.toPx(), // Oceania
+                // Zoomable & Pannable Map Layer (Tiles + Geodesic Beziers + Cyber Nodes)
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .graphicsLayer {
+                            scaleX = animatedMapZoom
+                            scaleY = animatedMapZoom
+                            translationX = mapPanOffset.x
+                            translationY = mapPanOffset.y
+                        }
+                ) {
+                    if (loadedBitmap != null) {
+                        Image(
+                            bitmap = loadedBitmap,
+                            contentDescription = "Google World Map",
+                            contentScale = ContentScale.FillBounds,
+                            modifier = Modifier.fillMaxSize(),
                         )
-                        hubs.forEach { (norm, rad) ->
-                            drawCircle(
-                                color = continentColor,
-                                radius = rad,
-                                center = Offset(norm.x * w, norm.y * h),
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(
+                                    if (useSatelliteLayer) Color(0xFF05080E).copy(alpha = 0.28f)
+                                    else Color(0xFF0F172A).copy(alpha = 0.10f)
+                                ),
+                        )
+                    }
+
+                    Canvas(modifier = Modifier.fillMaxSize()) {
+                        val w = size.width
+                        val h = size.height
+
+                        // Cyber Graticule Grid Lines (Mercator)
+                        val gridColor = if (loadedBitmap != null) {
+                            Color.White.copy(alpha = 0.09f)
+                        } else {
+                            neu.accent.copy(alpha = if (neu.isDark) 0.18f else 0.12f)
+                        }
+                        for (i in 1..7) {
+                            val gx = w * (i / 8f)
+                            drawLine(gridColor, Offset(gx, 0f), Offset(gx, h), strokeWidth = 1f)
+                        }
+                        for (j in 1..3) {
+                            val gy = h * (j / 4f)
+                            drawLine(gridColor, Offset(0f, gy), Offset(w, gy), strokeWidth = 1f)
+                        }
+
+                        if (loadedBitmap == null) {
+                            // Offline Continental Landmass Hubs
+                            val continentColor = neu.textSecondary.copy(alpha = if (neu.isDark) 0.16f else 0.13f)
+                            val hubs = listOf(
+                                Offset(0.22f, 0.36f) to 28.dp.toPx(), // North America
+                                Offset(0.32f, 0.72f) to 20.dp.toPx(), // South America
+                                Offset(0.51f, 0.30f) to 24.dp.toPx(), // Europe
+                                Offset(0.54f, 0.58f) to 24.dp.toPx(), // Africa
+                                Offset(0.68f, 0.38f) to 32.dp.toPx(), // Asia
+                                Offset(0.83f, 0.76f) to 18.dp.toPx(), // Oceania
                             )
-                        }
-                    }
-
-                    val originNorm = resolvedOriginCountryCode?.let { locationToMercatorNorm(it, null) }
-                    val exitNorm = resolvedExitCountryCode?.let { locationToMercatorNorm(it, resolvedExitCityCode) }
-
-                    if (originNorm != null && exitNorm != null) {
-                        val startPt = Offset(originNorm.x * w, originNorm.y * h)
-                        val endPt = Offset(exitNorm.x * w, exitNorm.y * h)
-
-                        val midX = (startPt.x + endPt.x) * 0.5f
-                        val arcLift = (kotlin.math.abs(endPt.x - startPt.x) * 0.32f).coerceIn(20.dp.toPx(), 54.dp.toPx())
-                        val controlPt = Offset(midX, (minOf(startPt.y, endPt.y) - arcLift).coerceAtLeast(12.dp.toPx()))
-
-                        val arcPath = Path().apply {
-                            moveTo(startPt.x, startPt.y)
-                            quadraticTo(controlPt.x, controlPt.y, endPt.x, endPt.y)
+                            hubs.forEach { (norm, rad) ->
+                                drawCircle(
+                                    color = continentColor,
+                                    radius = rad,
+                                    center = Offset(norm.x * w, norm.y * h),
+                                )
+                            }
                         }
 
-                        // Outer Glow of Route Arc
-                        drawPath(
-                            path = arcPath,
-                            color = routeColor.copy(alpha = if (isConnected) 0.38f else 0.20f),
-                            style = Stroke(width = 7.dp.toPx(), cap = StrokeCap.Round),
-                        )
+                        if (originNorm != null && exitNorm != null) {
+                            val startPt = Offset(originNorm.x * w, originNorm.y * h)
+                            val endPt = Offset(exitNorm.x * w, exitNorm.y * h)
 
-                        // Solid (Connected) or Dashed (Preview/Connecting) Main Route Arc
-                        drawPath(
-                            path = arcPath,
-                            color = routeColor,
-                            style = Stroke(
-                                width = 2.6.dp.toPx(),
-                                cap = StrokeCap.Round,
-                                pathEffect = if (isConnected) null else PathEffect.dashPathEffect(floatArrayOf(12f, 10f), 0f),
-                            ),
-                        )
+                            val midX = (startPt.x + endPt.x) * 0.5f
+                            val arcLift = (kotlin.math.abs(endPt.x - startPt.x) * 0.32f).coerceIn(20.dp.toPx(), 54.dp.toPx())
+                            val controlPt = Offset(midX, (minOf(startPt.y, endPt.y) - arcLift).coerceAtLeast(12.dp.toPx()))
 
-                        // Animated Data Packet traveling from Origin to Exit along Geodesic Bezier
-                        if (isConnected || isConnecting) {
-                            val t = packetProgress
-                            val invT = 1f - t
-                            val pktX = invT * invT * startPt.x + 2f * invT * t * controlPt.x + t * t * endPt.x
-                            val pktY = invT * invT * startPt.y + 2f * invT * t * controlPt.y + t * t * endPt.y
+                            val arcPath = Path().apply {
+                                moveTo(startPt.x, startPt.y)
+                                quadraticTo(controlPt.x, controlPt.y, endPt.x, endPt.y)
+                            }
+
+                            // 1. Neon Outer Halo Glow
+                            drawPath(
+                                path = arcPath,
+                                color = routeColor.copy(alpha = if (isConnected) 0.42f else 0.22f),
+                                style = Stroke(width = 8.dp.toPx(), cap = StrokeCap.Round),
+                            )
+
+                            // 2. Main Geodesic Core Arc (Solid or Dashed)
+                            drawPath(
+                                path = arcPath,
+                                color = routeColor,
+                                style = Stroke(
+                                    width = 2.8.dp.toPx(),
+                                    cap = StrokeCap.Round,
+                                    pathEffect = if (isConnected) null else PathEffect.dashPathEffect(floatArrayOf(12f, 10f), 0f),
+                                ),
+                            )
+
+                            // 3. Multi-Packet Quantum Photon Stream (3 trailing particles at 120Hz)
+                            if (isConnected || isConnecting) {
+                                val offsets = floatArrayOf(0f, 0.33f, 0.67f)
+                                for (idx in offsets.indices) {
+                                    val t = (packetProgress + offsets[idx]) % 1f
+                                    val invT = 1f - t
+                                    val pktX = invT * invT * startPt.x + 2f * invT * t * controlPt.x + t * t * endPt.x
+                                    val pktY = invT * invT * startPt.y + 2f * invT * t * controlPt.y + t * t * endPt.y
+                                    val packetAlpha = (0.9f - idx * 0.24f).coerceAtLeast(0.3f)
+                                    val radPx = (4.8f - idx * 0.8f).dp.toPx()
+
+                                    // Outer luminous flare
+                                    drawCircle(
+                                        color = routeColor.copy(alpha = 0.40f * packetAlpha),
+                                        radius = radPx * 2.4f,
+                                        center = Offset(pktX, pktY),
+                                    )
+                                    // High-intensity white core
+                                    drawCircle(
+                                        color = Color.White.copy(alpha = packetAlpha),
+                                        radius = radPx * 0.7f,
+                                        center = Offset(pktX, pktY),
+                                    )
+                                }
+                            }
+                        }
+
+                        // Origin Node Pin
+                        if (originNorm != null) {
+                            val startPt = Offset(originNorm.x * w, originNorm.y * h)
                             drawCircle(
-                                color = routeColor.copy(alpha = 0.45f),
-                                radius = 9.dp.toPx(),
-                                center = Offset(pktX, pktY),
+                                color = neu.accent.copy(alpha = 0.35f * pulseRadius),
+                                radius = 11.dp.toPx() * pulseRadius,
+                                center = startPt,
                             )
                             drawCircle(
                                 color = Color.White,
-                                radius = 4.dp.toPx(),
-                                center = Offset(pktX, pktY),
+                                radius = 5.5.dp.toPx(),
+                                center = startPt,
+                            )
+                            drawCircle(
+                                color = neu.accent,
+                                radius = 3.8.dp.toPx(),
+                                center = startPt,
+                            )
+                        }
+
+                        // Exit Server Node Pin with 2026 Multi-Ring Radar Beacon
+                        if (exitNorm != null) {
+                            val endPt = Offset(exitNorm.x * w, exitNorm.y * h)
+                            // Expanding outer radar wave
+                            drawCircle(
+                                color = routeColor.copy(alpha = (0.28f * (1f - pulseRadius)).coerceAtLeast(0.04f)),
+                                radius = 22.dp.toPx() * pulseRadius,
+                                center = endPt,
+                            )
+                            // Inner radar wave
+                            drawCircle(
+                                color = routeColor.copy(alpha = (0.42f * (1f - pulseRadius * 0.5f)).coerceAtLeast(0.1f)),
+                                radius = 14.dp.toPx() * pulseRadius,
+                                center = endPt,
+                            )
+                            drawCircle(
+                                color = Color.White,
+                                radius = 6.dp.toPx(),
+                                center = endPt,
+                            )
+                            drawCircle(
+                                color = routeColor,
+                                radius = 4.4.dp.toPx(),
+                                center = endPt,
                             )
                         }
                     }
+                }
 
-                    // Origin Node Pin (Only drawn when real origin country is known)
-                    if (originNorm != null) {
-                        val startPt = Offset(originNorm.x * w, originNorm.y * h)
-                        drawCircle(
-                            color = neu.accent.copy(alpha = 0.35f * pulseRadius),
-                            radius = 11.dp.toPx() * pulseRadius,
-                            center = startPt,
+                // 2026 Floating Glass HUD: Telemetry Chip (Top-Start)
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(horizontal = 8.dp, vertical = 6.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color(0xFF05080E).copy(alpha = 0.78f))
+                        .border(0.8.dp, neu.accent.copy(alpha = 0.32f), RoundedCornerShape(8.dp))
+                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(6.dp)
+                                .clip(CircleShape)
+                                .background(if (isConnected) Color(0xFF10B981) else Color(0xFF00E5FF)),
                         )
-                        drawCircle(
+                        val exitFlag = resolvedExitCountryCode?.let { com.vauth.foxyvpn.data.model.countryCodeToEmojiFlag(it) }?.takeIf { it.isNotBlank() }?.let { "$it " } ?: ""
+                        Text(
+                            text = if (resolvedExitCountryCode != null) {
+                                "$exitFlag[${resolvedExitCountryCode.uppercase()}] ${resolvedExitCityCode?.uppercase() ?: ""} • ${String.format(Locale.US, "%.1fx", animatedMapZoom)}"
+                            } else {
+                                "GLOBAL TUNNEL • ${String.format(Locale.US, "%.1fx", animatedMapZoom)}"
+                            },
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontFamily = fonts.headingFont,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 9.sp,
+                            ),
                             color = Color.White,
-                            radius = 5.5.dp.toPx(),
-                            center = startPt,
-                        )
-                        drawCircle(
-                            color = neu.accent,
-                            radius = 3.8.dp.toPx(),
-                            center = startPt,
-                        )
-                    }
-
-                    // Exit Server Node Pin (Only drawn when real/selected exit server country is known)
-                    if (exitNorm != null) {
-                        val endPt = Offset(exitNorm.x * w, exitNorm.y * h)
-                        drawCircle(
-                            color = routeColor.copy(alpha = 0.38f * pulseRadius),
-                            radius = 13.dp.toPx() * pulseRadius,
-                            center = endPt,
-                        )
-                        drawCircle(
-                            color = Color.White,
-                            radius = 6.5.dp.toPx(),
-                            center = endPt,
-                        )
-                        drawCircle(
-                            color = routeColor,
-                            radius = 4.6.dp.toPx(),
-                            center = endPt,
                         )
                     }
                 }
 
-                // Google Maps Layer Switcher Pill + Status Attribution
+                // 2026 Floating Glass HUD: Interactive Controls (Top-End)
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(horizontal = 8.dp, vertical = 6.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    // Target Focus Button (Locks and zooms into destination country)
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(Color(0xFF05080E).copy(alpha = 0.84f))
+                            .border(0.8.dp, neu.accent.copy(alpha = 0.45f), RoundedCornerShape(6.dp))
+                            .clickable {
+                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                if (exitNorm != null) {
+                                    mapZoomScale = 2.4f
+                                    mapPanOffset = Offset(
+                                        (0.5f - exitNorm.x) * 260f,
+                                        (0.5f - exitNorm.y) * 140f
+                                    )
+                                } else {
+                                    mapZoomScale = 2.0f
+                                }
+                            },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.MyLocation,
+                            contentDescription = "Target Focus",
+                            tint = Color(0xFF00E5FF),
+                            modifier = Modifier.size(15.dp),
+                        )
+                    }
+
+                    // Zoom In Button (+)
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(Color(0xFF05080E).copy(alpha = 0.84f))
+                            .border(0.6.dp, Color.White.copy(alpha = 0.22f), RoundedCornerShape(6.dp))
+                            .clickable {
+                                haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                mapZoomScale = (mapZoomScale * 1.35f).coerceAtMost(4.5f)
+                            },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Add,
+                            contentDescription = "Zoom In",
+                            tint = Color.White,
+                            modifier = Modifier.size(15.dp),
+                        )
+                    }
+
+                    // Zoom Out Button (-)
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(Color(0xFF05080E).copy(alpha = 0.84f))
+                            .border(0.6.dp, Color.White.copy(alpha = 0.22f), RoundedCornerShape(6.dp))
+                            .clickable {
+                                haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                val next = (mapZoomScale / 1.35f).coerceAtLeast(1.0f)
+                                mapZoomScale = next
+                                if (next <= 1.05f) mapPanOffset = Offset.Zero
+                            },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Remove,
+                            contentDescription = "Zoom Out",
+                            tint = Color.White,
+                            modifier = Modifier.size(15.dp),
+                        )
+                    }
+
+                    // Reset View Button
+                    if (mapZoomScale > 1.08f || mapPanOffset != Offset.Zero) {
+                        Box(
+                            modifier = Modifier
+                                .size(28.dp)
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(Color(0xFF05080E).copy(alpha = 0.84f))
+                                .border(0.6.dp, Color.White.copy(alpha = 0.25f), RoundedCornerShape(6.dp))
+                                .clickable {
+                                    haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                    mapZoomScale = 1.0f
+                                    mapPanOffset = Offset.Zero
+                                },
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.RestartAlt,
+                                contentDescription = "Reset View",
+                                tint = Color.White.copy(alpha = 0.85f),
+                                modifier = Modifier.size(15.dp),
+                            )
+                        }
+                    }
+                }
+
+                // Bottom Status Bar & Map/Satellite Layer Switcher
                 Row(
                     modifier = Modifier
-                        .align(Alignment.BottomBetweenRowAlignment)
+                        .align(Alignment.BottomCenter)
                         .fillMaxWidth()
                         .padding(horizontal = 8.dp, vertical = 6.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -1961,11 +2185,11 @@ private fun WorldRouteMapCard(
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(6.dp))
-                            .background(Color.Black.copy(alpha = 0.58f))
+                            .background(Color.Black.copy(alpha = 0.60f))
                             .padding(horizontal = 7.dp, vertical = 2.dp),
                     ) {
                         Text(
-                            text = if (loadedBitmap != null) "Google Maps • Web Mercator" else "Mercator Grid • Offline Ready",
+                            text = if (loadedBitmap != null) "Google Maps • Pinch/Zoom" else "Mercator Grid • Pinch/Zoom",
                             style = MaterialTheme.typography.labelSmall.copy(
                                 fontFamily = fonts.headingFont,
                                 fontWeight = FontWeight.Bold,
@@ -1978,7 +2202,7 @@ private fun WorldRouteMapCard(
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
-                            .background(Color.Black.copy(alpha = 0.62f))
+                            .background(Color.Black.copy(alpha = 0.64f))
                             .clickable { useSatelliteLayer = !useSatelliteLayer }
                             .padding(horizontal = 8.dp, vertical = 3.dp),
                     ) {

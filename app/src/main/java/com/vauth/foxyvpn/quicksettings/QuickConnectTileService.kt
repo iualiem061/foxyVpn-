@@ -75,7 +75,7 @@ class QuickConnectTileService : TileService() {
     private fun updateTileState(state: ConnectionState) {
         val tile = qsTile ?: return
         tile.icon = Icon.createWithResource(this, R.drawable.ic_notification_foxy)
-        tile.label = getString(R.string.quick_connect)
+        tile.label = getString(R.string.app_name)
         when (state) {
             ConnectionState.CONNECTED -> {
                 tile.state = Tile.STATE_ACTIVE

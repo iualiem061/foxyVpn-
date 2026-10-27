@@ -54,18 +54,19 @@ data class RuntimeAuth(
 )
 
 fun countryCodeToEmojiFlag(countryCode: String): String {
-    if (countryCode.equals("REC", ignoreCase = true) || countryCode.length != 2) return ""
-    val upper = countryCode.uppercase()
-    val first = upper[0]
-    val second = upper[1]
-    if (first !in 'A'..'Z' || second !in 'A'..'Z') return ""
-
-    val firstCodePoint = 0x1F1E6 + (first - 'A')
-    val secondCodePoint = 0x1F1E6 + (second - 'A')
-
-    return String(Character.toChars(firstCodePoint)) + String(Character.toChars(secondCodePoint))
+    if (countryCode.equals("REC", ignoreCase = true) || countryCode.isBlank()) return ""
+    val trimmed = countryCode.trim().uppercase()
+    if (trimmed.length != 2) return trimmed
+    val firstChar = Character.codePointAt(trimmed, 0) - 0x41 + 0x1F1E6
+    val secondChar = Character.codePointAt(trimmed, 1) - 0x41 + 0x1F1E6
+    return if (firstChar in 0x1F1E6..0x1F1FF && secondChar in 0x1F1E6..0x1F1FF) {
+        String(Character.toChars(firstChar)) + String(Character.toChars(secondChar))
+    } else {
+        trimmed
+    }
 }
 
 val VpnCountry.emojiFlag: String get() = countryCodeToEmojiFlag(code)
 val ProxyCandidate.emojiFlag: String get() = countryCodeToEmojiFlag(countryCode)
+
 

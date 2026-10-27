@@ -325,6 +325,9 @@ enum class DynamicIslandDoubleTapAction(
     EXPAND("Expand / Collapse", "باز و بسته کردن پنل", "فتح وإغلاق اللوحة"),
     TOGGLE_VPN("Quick Connect / Disconnect", "قطع و وصل سریع فیلترشکن", "اتصال أو قطع سريع"),
     OPEN_SERVERS("Open Server List", "باز کردن لیست سرورها", "فتح قائمة الخوادم"),
+    TOGGLE_KILLSWITCH("Toggle Kill Switch", "فعال/غیرفعال‌سازی کیل‌سوئیچ", "تبديل مفتاح القفل"),
+    SPEED_TEST("Run Real Latency Probe", "آزمایش فوری پینگ و تاخیر", "اختبار الاستجابة السريع"),
+    COPY_EXIT_IP("Copy Protected IP", "کپی آی‌پی محافظت‌شده", "نسخ عنوان الآي بي"),
     ;
 
     fun localizedLabel(lang: AppLanguage): String = when (lang) {
@@ -346,6 +349,10 @@ enum class DynamicIslandIndicatorStyle(
     SHIELD_GUARD("Cyber Shield", "سپر امنیتی", "الدرع الأمني"),
     SIGNAL_BARS("Signal Antenna", "آنتن سیگنال", "أبراج الإشارة"),
     MINIMAL_RING("Minimal Ring", "حلقه نئون", "حلقة نيون"),
+    QUANTUM_ORBIT("Quantum Dual Orbit", "مدار دوگانه کوانتومی", "مدار كمومي مزدوج"),
+    HEX_MATRIX("Hexagon Cyber Shield", "سپر شش‌ضلعی سایبر", "درع سداسي سيبراني"),
+    SONIC_RIPPLE("Sonic Echo Ripple", "امواج پژواک صوتی", "صدى الموجات الصوتية"),
+    NEON_COMPASS("Cyber Gyro Compass", "قطب‌نمای ژیروسکوپ نئون", "بوصلة الجيروسكوب"),
     ;
 
     fun localizedLabel(lang: AppLanguage): String = when (lang) {
@@ -494,6 +501,12 @@ class SettingsStore(context: Context) {
         get() = prefs.getBoolean("ad_block_enabled", false)
         set(value) {
             prefs.edit().putBoolean("ad_block_enabled", value).apply()
+        }
+
+    var killSwitchEnabled: Boolean
+        get() = prefs.getBoolean("kill_switch_enabled", false)
+        set(value) {
+            prefs.edit().putBoolean("kill_switch_enabled", value).apply()
         }
 
     var autoSwitchAccountByQuotaEnabled: Boolean

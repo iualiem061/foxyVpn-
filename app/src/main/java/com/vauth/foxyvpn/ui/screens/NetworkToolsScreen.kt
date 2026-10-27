@@ -1396,7 +1396,19 @@ private fun SmartServerScannerPanel(
                                 color = if (idx == 0) statusColors.connected else neu.textSecondary,
                                 modifier = Modifier.width(32.dp),
                             )
-                            Text(item.candidate.emojiFlag, fontSize = 20.sp)
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(neu.accent.copy(alpha = 0.12f))
+                                    .border(1.dp, neu.accent.copy(alpha = 0.25f), RoundedCornerShape(6.dp))
+                                    .padding(horizontal = 6.dp, vertical = 2.dp),
+                            ) {
+                                Text(
+                                    text = "${item.candidate.emojiFlag} ${item.candidate.countryCode.uppercase()}",
+                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Black),
+                                    color = neu.accent,
+                                )
+                            }
                             Spacer(Modifier.width(12.dp))
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
@@ -2239,7 +2251,7 @@ private fun TelegramProxyToolPanel(
                                 Icon(Icons.Filled.ContentCopy, contentDescription = null, tint = neu.accent, modifier = Modifier.size(15.dp))
                                 Spacer(Modifier.width(6.dp))
                                 Text(
-                                    text = if (copiedBadge == lbl) "✓ $lbl" else "Copy $lbl",
+                                    text = if (copiedBadge == lbl) "Copied: $lbl" else "Copy $lbl",
                                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
                                     color = neu.textPrimary,
                                 )
@@ -2345,9 +2357,9 @@ private fun TelegramProxyToolPanel(
                         Column {
                             Text(
                                 text = if (res.success) {
-                                    "✓ SOCKS5 Tunnel Verified (${res.rttMs ?: 0} ms) • Exit: ${res.exitIp ?: "—"} (${res.exitCountry ?: "Edge"})"
+                                    "SOCKS5 Tunnel Verified (${res.rttMs ?: 0} ms) • Exit: ${res.exitIp ?: "—"} (${res.exitCountry ?: "Edge"})"
                                 } else {
-                                    "✗ Verification Error: ${res.detailMessage}"
+                                    "Verification Error: ${res.detailMessage}"
                                 },
                                 style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
                                 color = if (res.success) statusColors.connected else MaterialTheme.colorScheme.error,
